@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/manuelcastroFau/resume-builderAi#readme",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "openai": "^3.2.1"
   }
 }
