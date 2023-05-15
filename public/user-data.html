@@ -45,9 +45,12 @@
             <label class="form-check-label" for="exampleCheck1">Check me out</label>
           </div> -->
           <button type="submit" onclick=sendata() class="btn btn-primary">Submit</button>
-          <div class="container pt-5">
+          <div id="resumeContainer" class="container pt-5 invisible">
             <h1 class="display-3"> Resume</h1>
             <pre id="myresume"></pre>
+            <object id="pdfframe" data="/resume.pdf" type="application/pdf" width="100%" height="500px">
+                <p>Unable to display PDF file. <a href="/resume.pdf" target="_blank">Download</a> instead.</p>
+            </object>
           </div>
     </div>
 
@@ -58,13 +61,15 @@
                 position:"",
                 university:"",
                 graduation:"",
-                phone:""
+                phone:"",
+                email:""
             }
             user.name = $("#name").val();
             user.position = $("#position").val();
             user.university = $("#university").val();
             user.graduation = $("#graduation").val();
             user.phone = $("#phone").val();
+            user.email = $("#email").val();
 
             $.ajax({
                 url: "/resume",
@@ -74,11 +79,16 @@
                   position:user.position,
                   university:user.university,
                   graduation:user.graduation,
-                  phone:user.phone
+                  phone:user.phone,
+                  email:user.email
                 },
                 success: function( result ) {
                   //$( "#myresume" ).val=  result  ;
-                  document.getElementById('myresume').innerHTML = result;
+                  
+                  document.getElementById('myresume').innerHTML = result.resumetext;
+                  $("#resumeContainer").toggleClass( "invisible" );
+                  $("#pdfframe").attr("data","/resume.pdf")
+
                 }
               });
         }

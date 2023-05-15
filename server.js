@@ -35,10 +35,11 @@ app.post('/resume', async function  (req, res) {
         position:req.body.position,
         university:req.body.university,
         graduation:req.body.graduation,
-        phone:req.body.phone
+        phone:req.body.phone,
+        email:req.body.email
     }
 
-    const myAi = await chatCompletion(`Do me a resume for ${user.position}, my name is ${user.name}, my email is ${user.name}, my university is ${user.university}, and my phone number is ${user.phone}, graduation date ${user.graduation}`);
+    const myAi = await chatCompletion(`Do me a resume for ${user.position}, my name is ${user.name}, my email is ${user.email}, my university is ${user.university}, and my phone number is ${user.phone}, graduation date ${user.graduation}`);
     console.log()
     res.send( myAi)
 })
@@ -55,11 +56,56 @@ async function chatCompletion(message) {
         ],
         temperature: 0.7,
     });
-
+    //createPDF().catch((error) => console.log(error));
+    const pdf = await createPDF(response.data.choices[0].message.content);
+    console.log()
     console.log(response.data.choices[0].message.content);
-    return response.data.choices[0].message.content;
+    return {
+        resumetext:response.data.choices[0].message.content,
+        resumePDF: pdf
+    };
     //return response
 }
+
+const { PDFDocument, StandardFonts, rgb } = require('pdf-lib');
+
+async function createPDF(text) {
+  // Create a new PDF document
+  const pdfDoc = await PDFDocument.create();
+
+  // Add a new page
+  const page = pdfDoc.addPage();
+
+  // Set the font and font size
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontSize = 14;
+
+  // Set the text color
+  const textColor = rgb(0, 0, 0); // Black color
+
+  // Define the text content
+  const textContent = text;
+
+  // Add the text content to the page
+  page.drawText(textContent, {
+    x: 50,
+    y: page.getHeight() - 50,
+    font,
+    fontSize,
+    
+    color: textColor,
+  });
+
+  // Save the PDF document to a buffer
+  const pdfBytes = await pdfDoc.save();
+
+  // Write the buffer to a file
+  const fs = require('fs');
+  fs.writeFileSync(__dirname +"/public/resume.pdf", pdfBytes);
+  return pdfBytes;
+}
+
+
 
 const PORT = 3000 || process.env.PORT
 console.log("Server running in port: ", PORT)
